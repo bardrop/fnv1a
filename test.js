@@ -82,6 +82,17 @@ test('reusing an Uint8Array for the string encoding', t => {
 	t.is(fnv1a('Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium.', {utf8Buffer}), 2_964_896_417n);
 });
 
+test('utf8Buffer smaller than a character', t => {
+	const string = 'aé€🦄\uD800b';
+	const expected = fnv1a(string);
+
+	for (const length of [1, 2, 3]) {
+		t.is(fnv1a(string, {utf8Buffer: new Uint8Array(length)}), expected);
+	}
+
+	t.is(fnv1a('🦄🌈', {utf8Buffer: new Uint8Array(1)}), 2_868_248_295n);
+});
+
 test('hashing an Uint8Array', t => {
 	const bytes = new TextEncoder().encode('hello');
 

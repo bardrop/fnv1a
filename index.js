@@ -45,9 +45,19 @@ function fnv1aEncodeInto(string, size, utf8Buffer) {
 
 	while (remaining.length > 0) {
 		const result = cachedEncoder.encodeInto(remaining, utf8Buffer);
-		remaining = remaining.slice(result.read);
-		for (let index = 0; index < result.written; index++) {
-			hash ^= BigInt(utf8Buffer[index]);
+		let bytes = utf8Buffer;
+		let {read, written} = result;
+
+		// `utf8Buffer` is too small for the next character, so encode just that character.
+		if (read === 0) {
+			read = remaining.codePointAt(0) > 0xFF_FF ? 2 : 1;
+			bytes = cachedEncoder.encode(remaining.slice(0, read));
+			written = bytes.length;
+		}
+
+		remaining = remaining.slice(read);
+		for (let index = 0; index < written; index++) {
+			hash ^= BigInt(bytes[index]);
 			hash = BigInt.asUintN(size, hash * fnvPrime);
 		}
 	}
